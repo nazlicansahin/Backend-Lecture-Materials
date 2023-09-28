@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace Lecture_1.Part_1.InsecureBank;
 class Program
@@ -20,35 +21,66 @@ class Program
             Console.WriteLine("5. Exit");
             Console.Write("Enter your choice: ");
 
-            int choice = int.Parse(Console.ReadLine());
-
-            switch (choice)
+            if (float.TryParse(Console.ReadLine(), out float choice))
             {
-                case 1:
-                    CreateAccount();
-                    break;
-                case 2:
-                    DepositMoney();
-                    break;
-                case 3:
-                    WithdrawMoney();
-                    break;
-                case 4:
-                    CheckBalance();
-                    break;
-                case 5:
-                    Console.WriteLine("Thank you for using the Insecure Bank!");
-                    return;
+                switch (choice)
+                {
+                    case 1:
+                        CreateAccount();
+                        break;
+                    case 2:
+                        DepositMoney();
+                        break;
+                    case 3:
+                        WithdrawMoney();
+                        break;
+                    case 4:
+                        CheckBalance();
+                        break;
+                    case 5:
+                        Console.WriteLine("Thank you for using the Insecure Bank!");
+                        return;
+                    default:
+                        Console.WriteLine("Invalid choice. Please enter a valid option.");
+                        break;
+                }
             }
+            else
+            {
+                Console.WriteLine("Enter an integer value");
+            }
+
+
         }
     }
 
     static void CreateAccount()
     {
+
+        string ownerName = null;
         Console.Write("Enter your name: ");
-        string ownerName = Console.ReadLine();
+
+
+        while (ownerName == null || ownerName.Length == 0)
+        {
+            Console.Write("Name cannot be null: ");
+
+            ownerName = Console.ReadLine();
+
+            while ( accountOwners.Contains(ownerName) )
+            {
+                Console.WriteLine("There is a person has this name: ");
+
+                Console.Write("Enter a name: ");
+
+                ownerName = Console.ReadLine();
+            }
+
+            
+        }
 
         accountOwners.Add(ownerName);
+
         accountBalances.Add(0.0);
 
         Console.WriteLine("Account created successfully!");
@@ -56,43 +88,125 @@ class Program
 
     static void DepositMoney()
     {
-        Console.Write("Enter your name: ");
-        string ownerName = Console.ReadLine();
-        int index = accountOwners.IndexOf(ownerName);
+        int index = -1; // Initialize to -1 to indicate "not found."
 
-        Console.Write("Enter the amount to deposit: ");
-        double amount = double.Parse(Console.ReadLine());
-        accountBalances[index] += amount;
-        Console.WriteLine($"Deposited ${amount}. New balance: ${accountBalances[index]}");
+        try
+        {
+            Console.Write("Enter your name: ");
+            string ownerName = Console.ReadLine();
+            index = accountOwners.IndexOf(ownerName);
 
+            if (index == -1)
+            {
+                Console.WriteLine("Account not found. Please check your name.");
+                return; // Exit the method since the account is not found.
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"An error occurred: {ex.Message}");
+            return; // Exit the method due to the error.
+        }
+
+        try
+        {
+            Console.Write("Enter the amount to deposit: ");
+            double amount = double.Parse(Console.ReadLine());
+
+            if (amount <= 0)
+            {
+                Console.WriteLine("Invalid amount. Please enter a positive amount to deposit.");
+                return; // Exit the method due to the invalid amount.
+            }
+
+            accountBalances[index] += amount;
+            Console.WriteLine($"Deposited ${amount}. New balance: ${accountBalances[index]}");
+        }
+        catch (FormatException)
+        {
+            Console.WriteLine("Invalid input format. Please enter a valid number.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"An error occurred: {ex.Message}");
+        }
     }
 
     static void WithdrawMoney()
-    {
-        Console.Write("Enter your name: ");
-        string ownerName = Console.ReadLine();
-        int index = accountOwners.IndexOf(ownerName);
+    {     
+            int index = -1; // Initialize to -1 to indicate "not found."
 
-        Console.Write("Enter the amount to withdraw: ");
-        double amount = double.Parse(Console.ReadLine());
+            try
+            {
+                Console.Write("Enter your name: ");
+                string ownerName = Console.ReadLine();
+                index = accountOwners.IndexOf(ownerName);
 
-        if (accountBalances[index] >= amount)
+                if (index == -1)
+                {
+                    Console.WriteLine("Account not found. Please check your name.");
+                    return; // Exit the method since the account is not found.
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred: {ex.Message}");
+                return; // Exit the method due to the error.
+            }
+        try
         {
-            accountBalances[index] -= amount;
-            Console.WriteLine($"Withdrawn ${amount}. New balance: ${accountBalances[index]}");
+            Console.Write("Enter the amount to withdraw: ");
+            double amount = double.Parse(Console.ReadLine());
+
+            if (accountBalances[index] >= amount)
+            {
+                accountBalances[index] -= amount;
+                Console.WriteLine($"Withdrawn ${amount}. New balance: ${accountBalances[index]}");
+            }
+            else
+            {
+                Console.WriteLine("Insufficient funds.");
+            }
+
         }
-        else
+        catch (FormatException)
         {
-            Console.WriteLine("Insufficient funds.");
+            Console.WriteLine("Invalid input format. Please enter a valid number.");
         }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"An error occurred: {ex.Message}");
+        }
+
     }
 
     static void CheckBalance()
     {
-        Console.Write("Enter your name: ");
-        string ownerName = Console.ReadLine();
-        int index = accountOwners.IndexOf(ownerName);
 
-        Console.WriteLine($"Your balance is ${accountBalances[index]}");
+        int index = -1; // Initialize to -1 to indicate "not found."
+
+        try
+        {
+            Console.Write("Enter your name: ");
+            string ownerName = Console.ReadLine();
+            index = accountOwners.IndexOf(ownerName);
+
+            if (index == -1)
+            {
+                Console.WriteLine("Account not found. Please check your name.");
+                return; // Exit the method since the account is not found.
+            }
+            else
+            {
+                Console.WriteLine($"Your balance is ${accountBalances[index]}");
+
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"An error occurred: {ex.Message}");
+            return; // Exit the method due to the error.
+        }
+
     }
 }
